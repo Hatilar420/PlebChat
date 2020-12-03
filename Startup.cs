@@ -11,6 +11,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer;
+using ChatApp.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace ChatApp
 {
@@ -26,8 +30,11 @@ namespace ChatApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ChatContext>();
             services.AddControllers();
             services.AddSignalR();
+            services.AddDbContextPool<ChatContext>(option => option.UseSqlServer(Configuration.GetConnectionString("App")));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -37,8 +44,15 @@ namespace ChatApp
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
+            
+                  
+            //app.UseHttpsRedirection();
+             
+            app.UseCors(builder =>
+            {
+              builder.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+            });
 
             app.UseRouting();
 
@@ -47,7 +61,7 @@ namespace ChatApp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<ChatHub>("/chat");
+                endpoints.MapHub<ChatHub>("/hub");
             });
         }
     }
