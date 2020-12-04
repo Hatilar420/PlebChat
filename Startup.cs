@@ -15,6 +15,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using ChatApp.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using ChatApp.Security;
 
 namespace ChatApp
 {
@@ -30,9 +34,44 @@ namespace ChatApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ChatContext>();
+
+             services.AddAuthentication(configureOptions:options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetValue<string>("SecurityKey"))),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    RequireExpirationTime = false,
+                    ValidateLifetime = true
+                };
+
+                x.Events = new JwtBearerEvents{
+                   OnMessageReceived = context =>{
+                       var accessToken = context.Request.Query["access_token"];
+                       var path = context.HttpContext.Request.Path;
+                       if(!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hub")){
+
+                           context.Token = accessToken;
+                       }
+                       return Task.CompletedTask;
+                   }     
+                };
+
+
+            });
+
+            services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ChatContext>();
             services.AddControllers();
             services.AddSignalR();
+            services.AddTransient<ISecurity,SecurityService>();
             services.AddDbContextPool<ChatContext>(option => option.UseSqlServer(Configuration.GetConnectionString("App")));
 
         }
@@ -55,6 +94,8 @@ namespace ChatApp
             });
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
