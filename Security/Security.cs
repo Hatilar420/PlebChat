@@ -27,7 +27,7 @@ namespace ChatApp.Security{
             var a = await _UserManager.CheckPasswordAsync(u, PassWord);
             if (a)
             {
-                var t = Token(UserName, u.Id);
+                var t = Token(UserName, u.Id,u.Email);
                 return new TokenResponse { IsValid = true, Token = t , UserKey = u.Id};
             }
             return new TokenResponse { IsValid = false, Errors = new[] { "UserName or password is invalid" } };
@@ -47,7 +47,7 @@ namespace ChatApp.Security{
                 }
                else
                 {
-                    var token = Token(UserName, u.Id);
+                    var token = Token(UserName, u.Id,u.Email);
                     return new TokenResponse { IsValid = true, Token = token,UserKey = u.Id};
                 }
             }
@@ -56,8 +56,9 @@ namespace ChatApp.Security{
 
        
 
-        private string Token(string UserName , string UserKey)
+        private string Token(string UserName , string UserKey,string Email)
         {
+            
             var token = new JwtSecurityTokenHandler();
             var key = Configuration["SecurityKey"];
             var Des = new SecurityTokenDescriptor()
@@ -67,7 +68,8 @@ namespace ChatApp.Security{
                 {
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Sub, UserName),
-                    new Claim("UserKey", UserKey)
+                    new Claim("UserKey", UserKey),
+                    new Claim(JwtRegisteredClaimNames.Email,Email)
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(10)
             };

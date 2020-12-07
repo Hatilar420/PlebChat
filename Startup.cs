@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ChatApp.Security;
+using ChatApp.Util;
 
 namespace ChatApp
 {
@@ -57,7 +58,7 @@ namespace ChatApp
                    OnMessageReceived = context =>{
                        var accessToken = context.Request.Query["access_token"];
                        var path = context.HttpContext.Request.Path;
-                       if(!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hub")){
+                       if(!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/pleb")){
 
                            context.Token = accessToken;
                        }
@@ -67,7 +68,9 @@ namespace ChatApp
 
 
             });
+            
 
+            services.AddSingleton<IUserIdProvider, EmailBasedUserId>();
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ChatContext>();
             services.AddControllers();
             services.AddSignalR();
@@ -103,6 +106,7 @@ namespace ChatApp
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/hub");
+                endpoints.MapHub<PlebChat>("/pleb");
             });
         }
     }
