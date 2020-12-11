@@ -9,13 +9,13 @@ namespace ChatApp.Models
     {
         public ChatContext(DbContextOptions options):base(options){
         }
-        DbSet<PrivateChat> Chats{get;set;}
+       public DbSet<PrivateChat> Chats{get;set;}
 
-        DbSet<Media> Medias{get;set;}
+        public DbSet<Media> Medias{get;set;}
 
-        DbSet<PrivateChat> PrivateChats{get;set;}
+        public DbSet<PrivateChat> PrivateChats{get;set;}
 
-        DbSet<ChatMap> ChatMaps{get;set;}
+        public DbSet<ChatMap> ChatMaps{get;set;}
 
 
         protected override void OnModelCreating(ModelBuilder builder)

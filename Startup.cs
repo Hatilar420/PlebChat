@@ -20,6 +20,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ChatApp.Security;
 using ChatApp.Util;
+using ChatApp.services;
 
 namespace ChatApp
 {
@@ -69,7 +70,7 @@ namespace ChatApp
 
             });
             
-
+            services.AddTransient<Iuser, UserService>();
             services.AddSingleton<IUserIdProvider, EmailBasedUserId>();
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ChatContext>();
             services.AddControllers();

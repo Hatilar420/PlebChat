@@ -33,6 +33,8 @@ namespace ChatApp.Models
     //To set Many to many relation
     public class ChatMap:Base{
       public string UserId {get;set;}
+
+      public string UserId_2 {get;set;}
       public string ChatId{get;set;}
 
      [ForeignKey("ChatId")]
