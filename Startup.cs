@@ -87,8 +87,7 @@ namespace ChatApp
             {
                 app.UseDeveloperExceptionPage();
             }
-            
-                  
+             
             //app.UseHttpsRedirection();
              
             app.UseCors(builder =>
@@ -96,7 +95,9 @@ namespace ChatApp
               builder.WithOrigins("http://localhost:3000")
               .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
             });
-
+               
+            app.UseStaticFiles();
+            
             app.UseRouting();
 
             app.UseAuthentication();

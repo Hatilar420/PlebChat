@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ChatApp.services;
+using ChatApp.responses;
 
 namespace ChatApp
 {
@@ -17,8 +18,14 @@ namespace ChatApp
         }
 
         public async Task SendPrivate(string user,string message){
-            await UserService.StoreMessageChat(Context.UserIdentifier,user,message);
-            await Clients.User(user).SendAsync("RecievePrivate",message);
+            var b = new MediaUserResponse{
+                to = user,
+                type = "Text",
+                message = message
+            };
+            var obj = await UserService.StoreMessageChat(Context.UserIdentifier,user,b);
+            if(obj.IsSuccess) await Clients.User(user).SendAsync("RecievePrivate",message);
+            else Console.WriteLine(obj.Error);
         }
         
         public override async Task OnConnectedAsync()

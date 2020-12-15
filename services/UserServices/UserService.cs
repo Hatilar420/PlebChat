@@ -5,14 +5,19 @@ using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Collections.Generic;
-
+using ChatApp.responses;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 namespace ChatApp.services{
 
     public class UserService : Iuser{
 
          private UserManager<ApplicationUser> _UserManager;
+         private readonly IWebHostEnvironment enviroment;
          private ChatContext Context ;
-         public UserService(UserManager<ApplicationUser> u,ChatContext c){
+         public UserService(UserManager<ApplicationUser> u,ChatContext c,IWebHostEnvironment e){
+               enviroment = e;
               _UserManager = u;
                Context = c;
          }
@@ -57,15 +62,29 @@ namespace ChatApp.services{
         
 
         //To store chats
-        public async Task StoreMessageChat(string From_Email,string To_Email,string message){
+        public async Task<StoreMessageResponse> StoreMessageChat(string From_Email,string To_Email,MediaUserResponse res){
            ApplicationUser User1 = await _UserManager.FindByEmailAsync(From_Email);
            ApplicationUser User2 = await _UserManager.FindByEmailAsync(To_Email);
+           string mes = string.Empty;
+           string ImageName= string.Empty;
+           if(string.Equals(res.type, "Text")){
+                mes = res.message;
+           }
+           else if(string.Equals(res.type,"Image")){
+                string name =  await StoreImage(res.image);
+                if(name != null){
+                    ImageName = name;
+                }
+                else {return new StoreMessageResponse{IsSuccess = false,Error = "Image Couldn't be stored"};}
+           }
+
            Media media = new Media{
                    Key=Guid.NewGuid().ToString(),
                    TimeUtc = 0,
                    SendFrom = User1.Id,
-                   Type = "Text",
-                   Message = message
+                   Type = res.type,
+                   Message = mes,
+                   Image = ImageName
                };
            //Check if the relation exists
            //if not then create a chat
@@ -79,7 +98,10 @@ namespace ChatApp.services{
            }
             await Context.Medias.AddAsync(media);
             await Context.SaveChangesAsync();
+            return new StoreMessageResponse{IsSuccess = true , Error = null,Type=res.type ,FilePath = ImageName };
         }
+
+        
 
          //To make a PrivateChat
          //Assuming No chat between User1 and User2 Exist
@@ -126,10 +148,46 @@ namespace ChatApp.services{
             }
         }
 
+
+        //Store Image
+        private async Task<String> StoreImage(IFormFile image){
+            string FilePathName = null;
+            try{
+            if(image.FileName.Length > 0 && image != null){
+                FilePathName = $"{ Guid.NewGuid()}_{ image.FileName}";
+                if (!Directory.Exists(enviroment.WebRootPath))
+                {
+                    Directory.CreateDirectory(enviroment.WebRootPath);
+                }
+                using (FileStream fs = File.Create(Path.Combine(enviroment.WebRootPath,"Images",$"{FilePathName}")))
+                {
+                    await image.CopyToAsync(fs);
+                    await fs.FlushAsync();
+                }
+            }
+            }
+            catch(Exception e){
+                Console.WriteLine(e.ToString());
+                return null;
+            }
+            return FilePathName;
+        }
+
+
+
+
     }
 
     public class innerOnlineResponse{
         public bool Success{get;set;}
         public string Error{get;set;}
     }
+
+    public class StoreMessageResponse{
+        public bool IsSuccess {get;set;}
+        public string Error{get;set;}
+        public string FilePath{get;set;}
+        public string Type{get;set;}
+    }
+
 }

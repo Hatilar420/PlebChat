@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ChatApp.Models;
 using System.Threading.Tasks;
+using ChatApp.responses;
 
 namespace ChatApp.services{
 
@@ -12,7 +13,7 @@ namespace ChatApp.services{
 
            public Task<innerOnlineResponse> SetOffline(string Email);
 
-           public Task StoreMessageChat(string From_Email,string To_Email,string message);
+           public Task<StoreMessageResponse> StoreMessageChat(string From_Email,string To_Email,MediaUserResponse message);
           
      }
 

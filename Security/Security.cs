@@ -37,7 +37,8 @@ namespace ChatApp.Security{
        public async Task<TokenResponse> Register(string email,string UserName, string PassWord)
         {
             var a = await _UserManager.FindByIdAsync(UserName);
-            if(a ==  null)
+            var b= await _UserManager.FindByEmailAsync(email);
+            if(a ==  null && b == null && !String.IsNullOrEmpty(email))
             {
                 var u = new ApplicationUser { UserName = UserName, Email = email };
                var r = await _UserManager.CreateAsync(u, PassWord);
