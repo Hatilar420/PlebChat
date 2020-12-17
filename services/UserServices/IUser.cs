@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ChatApp.Models;
 using System.Threading.Tasks;
 using ChatApp.responses;
+using ChatApp.Util;
 
 namespace ChatApp.services{
 
@@ -14,6 +15,11 @@ namespace ChatApp.services{
            public Task<innerOnlineResponse> SetOffline(string Email);
 
            public Task<StoreMessageResponse> StoreMessageChat(string From_Email,string To_Email,MediaUserResponse message);
+
+           public  Task<IEnumerable<Media>> GetChats(string Email1 , string Email2);
+
+
+           public Task<PaginatedList <Media>> GetPaginatedList(string Email1, string Email2 ,int Page,int PageItemCount);
           
      }
 

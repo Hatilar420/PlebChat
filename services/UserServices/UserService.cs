@@ -9,6 +9,8 @@ using ChatApp.responses;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using ChatApp.Util;
+
 namespace ChatApp.services{
 
     public class UserService : Iuser{
@@ -80,7 +82,7 @@ namespace ChatApp.services{
 
            Media media = new Media{
                    Key=Guid.NewGuid().ToString(),
-                   TimeUtc = 0,
+                   TimeUtc = DateTimeOffset.Now.ToUnixTimeSeconds(),
                    SendFrom = User1.Id,
                    Type = res.type,
                    Message = mes,
@@ -149,6 +151,20 @@ namespace ChatApp.services{
         }
 
 
+
+        // get the private chat Entity
+        private async Task<PrivateChat> GetPrivateChat(ApplicationUser user1 , ApplicationUser user2){
+            try{
+                string chatId = GetPrivateChatId(user1,user2);
+               return await Context.PrivateChats.FindAsync(chatId);
+            }
+            catch(Exception e){
+                   Console.WriteLine(e.Message);
+                   return null;
+            }
+        }
+
+
         //Store Image
         private async Task<String> StoreImage(IFormFile image){
             string FilePathName = null;
@@ -173,11 +189,63 @@ namespace ChatApp.services{
             return FilePathName;
         }
 
+        //Get all chat
+        public async Task<IEnumerable<Media>> GetChats(string Email1 , string Email2){
+
+            var user1  = await _UserManager.FindByEmailAsync(Email1);
+            var user2 =  await _UserManager.FindByEmailAsync(Email2);
+            if(user1 == null || user2 == null){
+                return null;
+            }
+            PrivateChat map =   await GetPrivateChat(user1,user2);
+            if(map != null){
+                try{
+                       await Context.Entry(map).Collection(s => s.Media).LoadAsync();
+                       List<Media> m = new List<Media>();
+                       foreach(var b in map.Media)
+                       {
+                            m.Add(new Media{Key = b.Key,
+                            RowVersion=b.RowVersion,
+                            TimeUtc = b.TimeUtc,
+                            ChatId = b.ChatId,
+                            SendFrom = b.SendFrom,
+                            Type = b.Type,
+                            Message = b.Message,
+                            Image = b.Message});
+                       }    // As it is also loading Navigation Properties , so i have to explicitly create a list and the laod all the usefull data
+                            // Also It is transferring too much data
+                       return m; //Get all the media or the chats
+                }
+                catch(Exception e){
+                    Console.WriteLine(e.Message); //CHANGE IT TO LOG
+                    return null;
+
+                }
+            }
+            else{
+                return null;
+            }
+            throw new NotImplementedException();
+        } 
+
+         //Pagination is also Required
+         //As all data cannot be transferred at once
+         public async Task<PaginatedList <Media>> GetPaginatedList(string Email1, string Email2 ,int Page,int PageItemCount)
+         {
+             IEnumerable<Media> m = await GetChats(Email1,Email2);
+             if(m == null){
+                 return null;
+             }
+             List<Media> Paginated = m.Skip((Page-1)*PageItemCount).Take(PageItemCount).ToList();
+             return new PaginatedList<Media>(m.Count(),Page,Paginated,PageItemCount);
+
+         }
 
 
 
     }
 
+  //User Responses
     public class innerOnlineResponse{
         public bool Success{get;set;}
         public string Error{get;set;}
@@ -189,5 +257,6 @@ namespace ChatApp.services{
         public string FilePath{get;set;}
         public string Type{get;set;}
     }
+
 
 }

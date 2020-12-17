@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ChatApp.responses;
 using ChatApp.services;
 using System.Security.Claims;
+using ChatApp.Util;
+using ChatApp.Models;
 
 namespace ChatApp.Controllers{
 
@@ -38,5 +40,18 @@ namespace ChatApp.Controllers{
             return Ok(new {FilePath = obj.FilePath});
         } 
 
+        //To get All Chats
+        //Implement Pagination
+        [HttpGet]
+        [Route("getchats")]
+        public async Task<IActionResult> GetChats([FromQuery] int page,[FromQuery] int items,[FromQuery]string email){
+            string fromEmail =   HttpContext.User?.FindFirst(ClaimTypes.Email)?.Value;
+            return Ok(await UserService.GetPaginatedList(fromEmail,email,page,items));
+        }
+        
+
+        
+
     }
+
 }
