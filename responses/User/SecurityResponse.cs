@@ -18,8 +18,8 @@ namespace ChatApp.responses
     }
 
     public class GetRefresh{
-        public string JwtToken {get;set;}
-        public string RefreshToken{get;set;}
+        public string token {get;set;}
+        public string refresh{get;set;}
     }
 
 }

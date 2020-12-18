@@ -24,7 +24,7 @@ namespace ChatApp.Controllers{
             TokenResponse r = await _Secure.Register(s.Email, s.UserName, s.Password);
             if (r.IsValid)
             {
-                return Created(@$"api/ContactApi/GetUser/{r.UserKey}", new { token = r.Token });
+                return Created(@$"api/ContactApi/GetUser/{r.UserKey}", new { token = r.Token,refreshToken = r.RefreshToken });
             }
             return BadRequest(new { errors = r.Errors });
         }
@@ -35,14 +35,18 @@ namespace ChatApp.Controllers{
             TokenResponse r = await _Secure.Login(l.UserName, l.Password);
             if(r.IsValid)
             {
-                return Ok(new { token = r.Token });
+                return Ok(new { token = r.Token , refreshToken = r.RefreshToken });
             }
             return Unauthorized(new { Error = r.Errors });
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> GetRefresh([FromBody] GetRefresh l){
-            return Unauthorized();
+        public async Task<IActionResult> GetRefreshToken([FromBody] GetRefresh l){
+            TokenResponse r = await _Secure.GetRefreshTokenAsync(l.token,l.refresh);
+            if(r.IsValid){
+                return Ok(new {token = r.Token , refreshToken = r.RefreshToken});
+            }
+            return Unauthorized(new {Error = r.Errors});
 
         }
 

@@ -11,4 +11,9 @@ namespace  ChatApp.responses
         public string UserKey{get;set;}
         public IEnumerable<string> Errors { get; set; }
     }
+
+    public class InnerToken{
+        public string Token;
+        public string RefreshToken;
+    }
 }
