@@ -86,7 +86,8 @@ namespace ChatApp.services{
                    SendFrom = User1.Id,
                    Type = res.type,
                    Message = mes,
-                   Image = ImageName
+                   Image = ImageName,
+                   SendFromEmail = From_Email
                };
            //Check if the relation exists
            //if not then create a chat
@@ -210,6 +211,7 @@ namespace ChatApp.services{
                             ChatId = b.ChatId,
                             SendFrom = b.SendFrom,
                             Type = b.Type,
+                            SendFromEmail = b.SendFromEmail,
                             Message = b.Message,
                             Image = b.Message});
                        }    // As it is also loading Navigation Properties , so i have to explicitly create a list and the laod all the usefull data

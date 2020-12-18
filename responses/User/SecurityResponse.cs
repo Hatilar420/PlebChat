@@ -17,4 +17,9 @@ namespace ChatApp.responses
         public string Password { get; set; }
     }
 
+    public class GetRefresh{
+        public string JwtToken {get;set;}
+        public string RefreshToken{get;set;}
+    }
+
 }

@@ -13,6 +13,7 @@ namespace ChatApp.Models
 
         public DbSet<Media> Medias{get;set;}
 
+        public DbSet<RefreshToken> refreshTokens{get;set;}
         public DbSet<PrivateChat> PrivateChats{get;set;}
 
         public DbSet<ChatMap> ChatMaps{get;set;}

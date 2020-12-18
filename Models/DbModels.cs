@@ -19,6 +19,7 @@ namespace ChatApp.Models
         
         public IEnumerable<Media> Medias{get;set;}
 
+        public IEnumerable<RefreshToken> refreshTokens{get;set;}
 
     }
 
@@ -62,6 +63,7 @@ namespace ChatApp.Models
         public long TimeUtc{get;set;} //When was the message send
         public string ChatId{get;set;}  // Get the chat Key from chats
         public string SendFrom{get;set;}   // Gets the user from User
+        public string SendFromEmail{get;set;} //Gets the user Email who sent this media
         public string Type{get;set;}      //Get the type of media (eg:- Jpeg, text etc...)
         public string Message{get;set;}    
         public string Image{get;set;}   // Location of image on static server
@@ -74,6 +76,23 @@ namespace ChatApp.Models
      
     } 
 
+    //RefreshToken
+    public class RefreshToken:Base{
+
+      public string JwtToken{get;set;}  //To get and set the Jwt token it is related to 
+      public DateTime CreationTime{get;set;} // Get and set the creation time of token
+      public DateTime ExpiryTime{get;set;}  // Get and set the Expiry time of token , It is obviously more than the Jwt token Issued Lifetime
+      public bool IsValid{get;set;}   //To check if the Token is Still valid , True if it is valid
+                                      // Implement a method to set it to false , if the Refresh token is stolen
+      public bool IsUsed {get;set;} // Set it to false if the Refresh token is used
+
+      //Also link it to Application user
+      public string UserKey{get;set;}
+      
+      [ForeignKey("UserKey")]
+      public ApplicationUser User {get;set;}
+
+    }
 
 
 }

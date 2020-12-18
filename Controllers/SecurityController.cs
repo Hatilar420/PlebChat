@@ -40,6 +40,12 @@ namespace ChatApp.Controllers{
             return Unauthorized(new { Error = r.Errors });
         }
 
+        [HttpPost("refresh")]
+        public async Task<IActionResult> GetRefresh([FromBody] GetRefresh l){
+            return Unauthorized();
+
+        }
+
 
 
       }

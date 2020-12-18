@@ -16,8 +16,10 @@ namespace ChatApp.Security{
            
            private UserManager<ApplicationUser> _UserManager;
            private readonly IConfiguration Configuration;
-           public SecurityService(UserManager<ApplicationUser> u,IConfiguration c ){
+           private readonly TokenValidationParameters _TokenValidParam;
+           public SecurityService(UserManager<ApplicationUser> u,IConfiguration c,TokenValidationParameters t ){
                 _UserManager = u; 
+                _TokenValidParam = t;
                 Configuration = c;
            }
 
@@ -55,7 +57,25 @@ namespace ChatApp.Security{
             return new TokenResponse { IsValid = false, Errors = new[] {"User already Exist"} };
         }
 
-       
+       private ClaimsPrincipal GetPrincipal(string Token){
+           JwtSecurityTokenHandler handler =  new JwtSecurityTokenHandler();
+           try{
+              ClaimsPrincipal  principal = handler.ValidateToken(Token,_TokenValidParam,out var ValidToken);
+               if(CheckValidatedToken(ValidToken)){
+                   return principal;
+               } 
+               else{
+                   return null;
+               }
+           }
+           catch{
+               return null;
+           }
+       }
+
+       private bool CheckValidatedToken(SecurityToken token){
+           return (token is JwtSecurityToken jwtToken) && jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,StringComparison.InvariantCultureIgnoreCase);
+       }
 
         private string Token(string UserName , string UserKey,string Email)
         {
