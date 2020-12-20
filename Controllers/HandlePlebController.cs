@@ -45,7 +45,7 @@ namespace ChatApp.Controllers{
         [HttpGet]
         [Route("getchats")]
         public async Task<IActionResult> GetChats([FromQuery] int page,[FromQuery] int items,[FromQuery]string email){
-            string fromEmail =   HttpContext.User?.FindFirst(ClaimTypes.Email)?.Value;
+            string fromEmail =   HttpContext.User?.FindFirst("Email")?.Value;
             return Ok(await UserService.GetPaginatedList(fromEmail,email,page,items));
         }
         

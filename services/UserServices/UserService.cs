@@ -213,7 +213,7 @@ namespace ChatApp.services{
                             Type = b.Type,
                             SendFromEmail = b.SendFromEmail,
                             Message = b.Message,
-                            Image = b.Message});
+                            Image = b.Image});
                        }    // As it is also loading Navigation Properties , so i have to explicitly create a list and the laod all the usefull data
                             // Also It is transferring too much data
                        return m; //Get all the media or the chats

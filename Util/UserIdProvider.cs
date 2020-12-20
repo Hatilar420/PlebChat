@@ -7,7 +7,7 @@ namespace ChatApp.Util{
     {
         public string GetUserId(HubConnectionContext connection)
         {
-            return connection.User?.FindFirst(ClaimTypes.Email)?.Value;
+            return connection.User?.FindFirst("Email")?.Value;
         }
     }
 }
