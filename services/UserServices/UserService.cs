@@ -25,8 +25,8 @@ namespace ChatApp.services{
          }
 
          //to get a list of  who is online
-         public IEnumerable<string> GetOnline(){
-             return _UserManager.Users.Where(user => user.IsOnline == true).Select(user => user.Email);
+         public IEnumerable<ApplicationUser> GetOnline(){
+             return _UserManager.Users.Where(user => user.IsOnline == true).Select(user => user);
          }
 
         //To set user offline
@@ -157,6 +157,9 @@ namespace ChatApp.services{
         private async Task<PrivateChat> GetPrivateChat(ApplicationUser user1 , ApplicationUser user2){
             try{
                 string chatId = GetPrivateChatId(user1,user2);
+                if(chatId == null){
+                    return null;
+                }
                return await Context.PrivateChats.FindAsync(chatId);
             }
             catch(Exception e){
@@ -240,6 +243,22 @@ namespace ChatApp.services{
              }
              List<Media> Paginated = m.Skip((Page-1)*PageItemCount).Take(PageItemCount).ToList();
              return new PaginatedList<Media>(m.Count(),Page,Paginated,PageItemCount);
+
+         }
+
+         public async Task<ApplicationUser> Getuser(string Email){
+             if(Email !=null){
+                 try{
+                 return await _UserManager.FindByEmailAsync(Email);
+                 }
+                 catch(Exception e){
+                     Console.WriteLine(e.Message);
+                     return null;
+                 }
+             }
+             else{
+                 return null;
+             }
 
          }
 

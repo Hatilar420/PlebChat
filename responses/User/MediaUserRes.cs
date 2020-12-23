@@ -8,8 +8,13 @@ namespace ChatApp.responses
         public string to{get;set;}
         public string type {get;set;}
         public IFormFile image {get;set;}
-
         public string message{get;set;}
+    }
+
+    public class ConnectedResponse{
+        public string ukey{get;set;}
+        public string username{get;set;}
+        public string email{get;set;}
     }
     
 }

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ChatApp.services;
 using ChatApp.responses;
+using ChatApp.Models;
+using System.Collections.Generic;
 
 namespace ChatApp
 {
@@ -23,8 +25,9 @@ namespace ChatApp
                 type = "Text",
                 message = message
             };
+            ApplicationUser u =  await UserService.Getuser(user);
             var obj = await UserService.StoreMessageChat(Context.UserIdentifier,user,b);
-            if(obj.IsSuccess) await Clients.User(user).SendAsync("RecievePrivate",message);
+            if(obj.IsSuccess) await Clients.User(user).SendAsync("RecievePrivate",u.UserName,message);
             else Console.WriteLine(obj.Error);
         }
         
@@ -32,22 +35,27 @@ namespace ChatApp
         {
              string email =  Context.UserIdentifier;
              var b  = await UserService.SetOnline(email);
-              
+             
              if(b.Success)
              {
                  var temp = UserService.GetOnline();
-                 await  Clients.All.SendAsync("connected",new {Email = temp});
+                 List<ConnectedResponse> li = new List<ConnectedResponse>();
+                 foreach(var u in temp){
+                    li.Add(new ConnectedResponse{email =  u.Email,ukey=u.Id,username=u.UserName});                    
+                 }
+                 await  Clients.All.SendAsync("connected",new {users = li});
              }
             //await Clients.User(Context.UserIdentifier).SendAsync("bruhh","Hello");
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            string email =  Context.UserIdentifier;
+            string email =  Context.UserIdentifier;            
              var b  = await UserService.SetOffline(email);
              if(b.Success)
              {
-                 await Clients.All.SendAsync("disconnected",new {Email = email});
+                 ApplicationUser u = await UserService.Getuser(email);
+                 await Clients.All.SendAsync("disconnected",new ConnectedResponse{email=u.Email,ukey=u.Id,username=u.UserName});
              }
         }
 

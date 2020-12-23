@@ -9,7 +9,7 @@ namespace ChatApp.services{
 
      public interface Iuser
      { 
-           public IEnumerable<string> GetOnline();
+           public IEnumerable<ApplicationUser> GetOnline();
            public Task<innerOnlineResponse> SetOnline(string Email);
 
            public Task<innerOnlineResponse> SetOffline(string Email);
@@ -18,6 +18,7 @@ namespace ChatApp.services{
 
            public  Task<IEnumerable<Media>> GetChats(string Email1 , string Email2);
 
+           public Task<ApplicationUser> Getuser(string Email);
 
            public Task<PaginatedList <Media>> GetPaginatedList(string Email1, string Email2 ,int Page,int PageItemCount);
           
