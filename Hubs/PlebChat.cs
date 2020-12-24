@@ -20,14 +20,15 @@ namespace ChatApp
         }
 
         public async Task SendPrivate(string user,string message){
+            string email =  Context.UserIdentifier;
             var b = new MediaUserResponse{
                 to = user,
                 type = "Text",
                 message = message
             };
-            ApplicationUser u =  await UserService.Getuser(user);
+            ApplicationUser u =  await UserService.Getuser(email);
             var obj = await UserService.StoreMessageChat(Context.UserIdentifier,user,b);
-            if(obj.IsSuccess) await Clients.User(user).SendAsync("RecievePrivate",u.UserName,message);
+            if(obj.IsSuccess) await Clients.User(user).SendAsync("RecievePrivate",u.UserName,b);
             else Console.WriteLine(obj.Error);
         }
         

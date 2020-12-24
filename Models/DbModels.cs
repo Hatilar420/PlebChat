@@ -17,19 +17,74 @@ namespace ChatApp.Models
 
         public IEnumerable<ChatMap> chats{get;set;}
         
+        public IEnumerable<GroupMap> groups{get;set;}
+
+        public IEnumerable<ServerChannelMap> servers{get;set;}
+
         public IEnumerable<Media> Medias{get;set;}
 
         public IEnumerable<RefreshToken> refreshTokens{get;set;}
 
     }
 
+  
     //Base Class
-     public class Base{
+    public class Base{
         [Key]
       public  string Key{get;set;}
         [Timestamp]
        public byte[] RowVersion{get;set;}
     }
+
+    //To set Many to Many relation between ApplicationUser and ServerChannel
+    public class ServerChannelMap:Base{
+      public string UserId{get;set;}
+      public string ServerChannelKey{get;set;}
+
+      [ForeignKey("UserId")]
+      public ApplicationUser user{get;set;}
+
+      [ForeignKey("ServerChannelKey")]
+      public ServerChannel server{get;set;}
+
+
+    }
+
+    //To set Many to many relation between ApplicationUser and MessageChannel
+    public class GroupMap:Base{
+        public string UserId{get;set;}
+        public string MessageChannelKey{get;set;}
+
+        public string ServerName{get;set;}
+
+        [ForeignKey("UserId")]
+        public ApplicationUser user{get;set;}
+
+        [ForeignKey("MessageChannelKey")]
+        public MessageChannel messageChannel{get;set;}
+    }
+
+
+    //The Message Channel of a server
+    public class MessageChannel:Base{
+
+      public string Name {get;set;}
+
+      public string ServerKey{get;set;}
+
+      [ForeignKey("ServerKey")]
+      public ServerChannel server{get;set;}
+      public IEnumerable<Media> Medias{get;set;}
+      public IEnumerable<GroupMap> groupMap{get;set;}
+    }
+
+    public class ServerChannel:Base{
+      public string Name{get;set;}
+      public DateTime CreationTime{get;set;}
+      public IEnumerable<MessageChannel> MessageChannels{get;set;}
+      public IEnumerable<ServerChannelMap> ServerChannelMaps{get;set;}
+    }
+
 
     //To set Many to many relation
     public class ChatMap:Base{
@@ -67,12 +122,16 @@ namespace ChatApp.Models
         public string Type{get;set;}      //Get the type of media (eg:- Jpeg, text etc...)
         public string Message{get;set;}    
         public string Image{get;set;}   // Location of image on static server
+        public string MessageChannelKey{get;set;} // Key of the message channel to which media is sent to
 
         [ForeignKey("ChatId")]
         public PrivateChat Chat{get;set;}
 
         [ForeignKey("SendFrom")]
         public ApplicationUser User{get;set;}
+
+        [ForeignKey("MessageChannelKey")]
+        public MessageChannel messageChannel {get;set;}
      
     } 
 

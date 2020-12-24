@@ -4,14 +4,16 @@ using ChatApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ChatApp.Migrations
 {
     [DbContext(typeof(ChatContext))]
-    partial class ChatContextModelSnapshot : ModelSnapshot
+    [Migration("20201224221137_AddedMessageGroupsAndServer")]
+    partial class AddedMessageGroupsAndServer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -139,7 +141,7 @@ namespace ChatApp.Migrations
 
                     b.HasIndex("MessageChannelKey");
 
-                    b.ToTable("GroupMaps");
+                    b.ToTable("GroupMap");
                 });
 
             modelBuilder.Entity("ChatApp.Models.Media", b =>
@@ -207,7 +209,7 @@ namespace ChatApp.Migrations
 
                     b.HasIndex("ServerKey");
 
-                    b.ToTable("messageChannels");
+                    b.ToTable("MessageChannel");
                 });
 
             modelBuilder.Entity("ChatApp.Models.PrivateChat", b =>
@@ -278,7 +280,7 @@ namespace ChatApp.Migrations
 
                     b.HasKey("Key");
 
-                    b.ToTable("ServerChannels");
+                    b.ToTable("ServerChannel");
                 });
 
             modelBuilder.Entity("ChatApp.Models.ServerChannelMap", b =>
@@ -301,7 +303,7 @@ namespace ChatApp.Migrations
 
                     b.HasIndex("ServerChannelKey");
 
-                    b.ToTable("serverChannelMaps");
+                    b.ToTable("ServerChannelMap");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
