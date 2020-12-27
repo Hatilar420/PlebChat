@@ -150,6 +150,8 @@ namespace ChatApp.services{
             return null;
         }
 
+
+
         //Join the messageChannels
         private async Task JoinMessageChannelsAsync(IEnumerable<MessageChannel> messageChannels, string userkey,string serverName){
             List<GroupMap> groupMaps = new List<GroupMap>();
@@ -169,6 +171,9 @@ namespace ChatApp.services{
                 Console.WriteLine(e); // change it to log later
             }
         }
+
+
+        
 
 
     }

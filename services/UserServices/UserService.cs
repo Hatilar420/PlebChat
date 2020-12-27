@@ -67,6 +67,9 @@ namespace ChatApp.services{
         public async Task<StoreMessageResponse> StoreMessageChat(string From_Email,string To_Email,MediaUserResponse res){
            ApplicationUser User1 = await _UserManager.FindByEmailAsync(From_Email);
            ApplicationUser User2 = await _UserManager.FindByEmailAsync(To_Email);
+           if(User1 == null || User2 == null){
+               return new StoreMessageResponse{IsSuccess = false , Error ="Image couldn't be stored as user1 or user2 is null"};
+           }
            string mes = string.Empty;
            string ImageName= string.Empty;
            if(string.Equals(res.type, "Text")){

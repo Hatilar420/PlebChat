@@ -30,14 +30,19 @@ namespace ChatApp.Controllers{
         [Route("sendimage")]
         public async Task<IActionResult> SendImage([FromForm] MediaUserResponse res ){
            
-            string fromEmail =   HttpContext.User?.FindFirst(ClaimTypes.Email)?.Value;
+            string fromEmail =   HttpContext.User?.FindFirst("Email")?.Value;
             var obj = await UserService.StoreMessageChat(fromEmail,res.to,res);
+            var u = await UserService.Getuser(fromEmail);
             if(!obj.IsSuccess){
               Console.WriteLine(obj.Error); // change it to log later
                return StatusCode(500);
             }
-            await _hubContext.Clients.User(fromEmail).SendAsync("imagerec",obj.FilePath); // Hosted image url send to the sender too
-            await _hubContext.Clients.User(res.to).SendAsync("imagerec",obj.FilePath);   // Hosted image url sent to the receiver        
+            var response = new {
+                to = res.to,
+                type = "Image",
+                FilePath = obj.FilePath
+            };
+            await _hubContext.Clients.User(res.to).SendAsync("imagerec",u.UserName,response);   // Hosted image url sent to the receiver        
             return Ok(new {FilePath = obj.FilePath});
         } 
 
