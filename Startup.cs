@@ -81,6 +81,7 @@ namespace ChatApp
             services.AddSignalR();
             services.AddTransient<ISecurity,SecurityService>();
             services.AddDbContextPool<ChatContext>(option => option.UseSqlServer(Configuration.GetConnectionString("App")));
+            services.AddTransient<IGroup,GroupService>();
 
         }
 
