@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Collections.Generic;
+using ChatApp.InnerDataTransferObjects;
 
 namespace ChatApp.services{
 
@@ -22,19 +23,19 @@ namespace ChatApp.services{
 
 
         //to create server
-        public async Task CreateServerAsync(string ServerName,string AdminEmail){
+        public async Task<CreateServerObject> CreateServerAsync(string ServerName,string AdminEmail){
             
             //Check if Server Already Exists
            var Server =  _Context.ServerChannels.Select(val => val).Where(pre => pre.Name == ServerName).SingleOrDefault();
            if(Server != null)
            {
-               return;
+               return new CreateServerObject{IsSuccess = false , Errors = new[] {"server already exists"}};
            }
             //Check if the Email Exists;
             ApplicationUser user = await _UserManager.FindByEmailAsync(AdminEmail);
             if(user == null)
             {
-                return;
+                return new CreateServerObject{IsSuccess = false , Errors = new[] {"cannot find user"}};
             }   
             ServerChannel server = new ServerChannel{
                 Key = Guid.NewGuid().ToString(),
@@ -45,12 +46,53 @@ namespace ChatApp.services{
                 await _Context.ServerChannels.AddAsync(server);
                 await _Context.SaveChangesAsync();
                 await CreateServerMapAsync(server.Key,user.Id);
+                return new CreateServerObject{IsSuccess = true , ServerKey = server.Key, ServerName = server.Name};
             }   
             catch(Exception e){
               Console.WriteLine(e); // change it to log later
+              return new CreateServerObject{IsSuccess = false , Errors= new[] {e.Message}};
             }     
         } 
 
+        public async Task<GetServerObject> GetServerAsync(string serverKey){
+           ServerChannel  server =  await _Context.ServerChannels.FindAsync(serverKey);
+           if(server == null){
+               return new GetServerObject{IsSuccess = false , Errors = new[] {"server does not exist"}};
+           }
+           try{
+            
+            //Get Message Channel Keys
+            List<string> MessageChannelKeys = new List<string>();
+            IEnumerable<MessageChannel> messageChannels =  await GetMessageChannelAsync(serverKey);
+            foreach(MessageChannel x in messageChannels){
+                MessageChannelKeys.Add(x.Key);
+            }
+            
+            //Get Server Users
+            IEnumerable<ServerChannelMap> maps = _Context.serverChannelMaps.Select(val => val).Where(pre => pre.ServerChannelKey == serverKey);
+            List<string> UserkeyList = new List<string>();
+             foreach(ServerChannelMap x in maps){
+                UserkeyList.Add(x.Key);
+            }
+            
+            
+            return new GetServerObject(){
+                IsSuccess = true,
+                ServerKey = server.Key,
+                ServerName = server.Name,
+                UserKeys = UserkeyList,
+                MessageKeys = MessageChannelKeys
+            };
+
+            
+           }catch(Exception e){
+                return new GetServerObject{
+                    IsSuccess = false, 
+                    Errors = new[] {e.Message}
+                };
+           }
+
+        }
 
         public async Task CreateMessageGroupAsync(string ChannelName,string serverKey){
            ServerChannel serverChannel =  await _Context.ServerChannels.FindAsync(serverKey);
