@@ -10,4 +10,10 @@ namespace ChatApp.responses{
         public IEnumerable<string> message_channel_keys{get;set;}
     }
 
+    public class GetMessageResponse{
+        public string message_key{get;set;}
+        public string name{get;set;}
+        public IEnumerable<string> user_keys {get;set;}
+    }
+
 }

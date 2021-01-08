@@ -72,7 +72,7 @@ namespace ChatApp.services{
             IEnumerable<ServerChannelMap> maps = _Context.serverChannelMaps.Select(val => val).Where(pre => pre.ServerChannelKey == serverKey);
             List<string> UserkeyList = new List<string>();
              foreach(ServerChannelMap x in maps){
-                UserkeyList.Add(x.Key);
+                UserkeyList.Add(x.UserId);
             }
             
             
@@ -94,10 +94,13 @@ namespace ChatApp.services{
 
         }
 
-        public async Task CreateMessageGroupAsync(string ChannelName,string serverKey){
+        public async Task<CreateMessageChannelObject> CreateMessageGroupAsync(string ChannelName,string serverKey){
            ServerChannel serverChannel =  await _Context.ServerChannels.FindAsync(serverKey);
            if(serverChannel == null){
-               return ;
+               return new CreateMessageChannelObject{
+                   IsSuccess = false,
+                   Errors = new[] {"Couldn't find the server"}
+               } ;
            } 
             MessageChannel messageChannel = new MessageChannel(){
                 Key = Guid.NewGuid().ToString(),
@@ -108,10 +111,53 @@ namespace ChatApp.services{
                 await _Context.messageChannels.AddAsync(messageChannel);
                 await _Context.SaveChangesAsync();
                 await CreateGroupMapAsync(serverKey,messageChannel.Key);//Make a map to server users to this message channel
+                return new CreateMessageChannelObject{
+                    IsSuccess = true,
+                    Errors = null,
+                    MessageChannelKey =  messageChannel.Key,
+                    MessageChannelName = messageChannel.Name
+                };
             }
             catch(Exception e){
                 Console.WriteLine(e); // change it to log later
+                return new CreateMessageChannelObject{
+                    IsSuccess = false,
+                    Errors = new[] {e.Message}  
+                };
             }
+
+        }
+
+
+        //To get a single Message channel inside a server
+        public async Task<GetMessageObject> GetMessageGroupAsync(string MessageKey){
+           MessageChannel  message =  await _Context.messageChannels.FindAsync(MessageKey);
+           if(message == null){
+               return new GetMessageObject{IsSuccess = false , Errors = new[] {"message channel does not exist"}};
+           }
+           try{
+            
+            //Get MessageGroupUsers Users
+            IEnumerable<GroupMap> maps = _Context.GroupMaps.Select(val => val).Where(pre => pre.MessageChannelKey == MessageKey);
+            List<string> UserkeyList = new List<string>();
+             foreach(GroupMap x in maps){
+                UserkeyList.Add(x.UserId);
+            }
+            
+            return new GetMessageObject(){
+                IsSuccess = true,
+                MessageKey = message.Key,
+                name= message.Name,
+                UserKeys = UserkeyList,
+            };
+
+            
+           }catch(Exception e){
+                return new GetMessageObject{
+                    IsSuccess = false, 
+                    Errors = new[] {e.Message}
+                };
+           }
 
         }
 

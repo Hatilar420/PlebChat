@@ -9,4 +9,10 @@ namespace ChatApp.responses{
         public IEnumerable<string> errors{get;set;}
     }
 
+    public class CreateMessageChannelResponse{
+        public string MessageKey{get;set;}
+        public string MessageChannelName{get;set;}
+        public IEnumerable<string> errors{get;set;}
+    }
+
 }

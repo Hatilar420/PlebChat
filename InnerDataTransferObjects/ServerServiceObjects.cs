@@ -17,7 +17,26 @@ namespace ChatApp.InnerDataTransferObjects{
         public IEnumerable<string> UserKeys {get;set;}
         public IEnumerable<string> MessageKeys {get;set;}
 
+    }
+
+    public class CreateMessageChannelObject{
+        public bool IsSuccess {get;set;}
+        public IEnumerable<string> Errors {get;set;}
+
+        public string MessageChannelKey{get;set;}
+
+        public string MessageChannelName{get;set;}
 
     }
+
+    public class GetMessageObject{
+        public bool IsSuccess {get;set;}
+        public IEnumerable<string> Errors {get;set;}
+        public string MessageKey {get;set;}
+        public string name {get;set;}
+        public IEnumerable<string> UserKeys {get;set;}
+
+    }
+
 
 }
