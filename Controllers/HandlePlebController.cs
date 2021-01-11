@@ -9,6 +9,7 @@ using ChatApp.services;
 using System.Security.Claims;
 using ChatApp.Util;
 using ChatApp.Models;
+using System.Collections.Generic;
 
 namespace ChatApp.Controllers{
 
@@ -53,6 +54,21 @@ namespace ChatApp.Controllers{
         public async Task<IActionResult> GetChats([FromQuery] int page,[FromQuery] int items,[FromQuery]string email){
             string fromEmail =   HttpContext.User?.FindFirst("Email")?.Value;
             return Ok(await UserService.GetPaginatedList(fromEmail,email,page,items));
+        }
+
+        //To get Servers of the user
+        [HttpGet]
+        [Route("userServers")]
+        public async Task<IActionResult> GetServers(){
+            string fromEmail =  HttpContext.User?.FindFirst("Email")?.Value;
+            ApplicationUser user  = await UserService.Getuser(fromEmail);
+            if(user != null){
+                IEnumerable<string> servers =   UserService.GetUserServerKeys(user.Id);
+                return Ok(new {
+                    ServerKeys = servers
+                });
+            }
+            return BadRequest();
         }
         
 

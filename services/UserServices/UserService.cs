@@ -265,6 +265,30 @@ namespace ChatApp.services{
 
          }
 
+         //To get groups of user
+         public IEnumerable<string> GetUserServerKeys(string userKey){
+
+             
+             if(string.IsNullOrWhiteSpace(userKey)){
+                 return null;
+             }
+
+                try{
+                  IEnumerable<ServerChannelMap> serverChannels =  Context.serverChannelMaps.Select(x => x).Where(x => x.UserId == userKey);
+                  if(serverChannels !=  null){
+                      List<string> ServerKeys = new List<string>();
+                      foreach(ServerChannelMap m in serverChannels){
+                          ServerKeys.Add(m.ServerChannelKey);
+                      }
+                      return ServerKeys;
+                  }
+                }catch(Exception e){
+                    Console.WriteLine(e.Message); // CHANGE IT TO LOG LATER
+                }
+
+                return null;
+         }
+
 
 
     }

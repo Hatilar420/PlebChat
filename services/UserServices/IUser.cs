@@ -21,6 +21,8 @@ namespace ChatApp.services{
            public Task<ApplicationUser> Getuser(string Email);
 
            public Task<PaginatedList <Media>> GetPaginatedList(string Email1, string Email2 ,int Page,int PageItemCount);
+
+           public IEnumerable<string> GetUserServerKeys(string userKey);
           
      }
 
