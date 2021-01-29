@@ -60,7 +60,7 @@ namespace ChatApp
                    OnMessageReceived = context =>{
                        var accessToken = context.Request.Query["access_token"];
                        var path = context.HttpContext.Request.Path;
-                       if(!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/pleb")){
+                       if(!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/pleb") || path.StartsWithSegments("/server") ){
 
                            context.Token = accessToken;
                        }
@@ -114,6 +114,7 @@ namespace ChatApp
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/hub");
                 endpoints.MapHub<PlebChat>("/pleb");
+                endpoints.MapHub<GroupHub>("/server");
             });
         }
     }
