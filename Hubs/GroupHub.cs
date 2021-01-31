@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ChatApp.responses;
 
 namespace ChatApp{
 
@@ -40,8 +41,35 @@ namespace ChatApp{
             //Join the Text servers
             foreach(string textServerKeys in  TextServerKeys){
                 await Groups.AddToGroupAsync(Context.ConnectionId,textServerKeys);
-                await Clients.Group(textServerKeys).SendAsync("TextServerConnected",$"{fromUserKey}");
+                //await Clients.Group(textServerKeys).SendAsync("TextServerConnected",$"{fromUserKey}");
             }
+        }
+
+        //Send Message to the server
+        public async Task SendMessage(string ServerKey,string GroupKey , string message){
+            string fromUserKey =  Context.User?.FindFirst("UserKey")?.Value;
+            if(!string.IsNullOrWhiteSpace(GroupKey) && !string.IsNullOrWhiteSpace(message)){
+                    
+                var b = new MediaUserResponse{
+                    type = "Text",
+                    message = message
+                    };
+
+                var obj =  await _ServerService.StoreMessageChatAsync(fromUserKey , GroupKey, b);
+                if(obj.IsSuccess){    
+                     await Clients.Group(GroupKey).SendAsync("TextServerReceive",new {
+                        server_key = ServerKey,
+                        text_server_key = GroupKey,
+                        from_user_key  = fromUserKey,
+                        message = message
+                            });                 
+                }
+               else{
+                   Console.WriteLine(obj.Error);
+               }
+                
+            }
+
         }
         
                

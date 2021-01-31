@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using ChatApp.InnerDataTransferObjects;
+using ChatApp.responses;
 
 namespace ChatApp.services{
 
@@ -9,6 +10,7 @@ namespace ChatApp.services{
          public Task<CreateMessageChannelObject> CreateMessageGroupAsync(string ChannelName,string serverKey);
          public Task<GetMessageObject> GetMessageGroupAsync(string MessageKey);
          public Task JoinServerAsync(string userEmail ,string ServerKey);
+        public Task<StoreGroupMessageResponse> StoreMessageChatAsync (string FromUserKey , string MessageChannelKey , MediaUserResponse res );
 
     }
 

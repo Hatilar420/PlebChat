@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using ChatApp.InnerDataTransferObjects;
+using ChatApp.responses;
 
 namespace ChatApp.services{
 
@@ -228,6 +229,52 @@ namespace ChatApp.services{
             }       
         }
 
+
+        public async Task<StoreGroupMessageResponse> StoreMessageChatAsync (string FromUserKey , string MessageChannelKey , MediaUserResponse res ){
+            try{
+                    ApplicationUser User1  = await _UserManager.FindByIdAsync(FromUserKey);
+                    if(User1  == null){
+                        return new StoreGroupMessageResponse{ IsSuccess = false , Error = "couldnt find the user"};
+                     }
+
+                    string mes = string.Empty;
+                    string ImageName =  string.Empty;
+                    if(string.Equals(res.type , "Text")){
+                        mes = res.message;
+                    }
+                    else if(string.Equals(res.type,"Image")){ // Implement a method to store images
+                        /* string name =  await StoreImage(res.image);
+                        if(name != null){
+                            ImageName = name;
+                                }
+                            else {return new StoreGroupMessageResponse{IsSuccess = false,Error = "Image Couldn't be stored"};}*/
+                        }
+
+                    // Link it to a Message channel or text channel by assigning a key to Messsage channel key
+                    Media media =  new Media{
+                        Key=Guid.NewGuid().ToString(),
+                        TimeUtc = DateTimeOffset.Now.ToUnixTimeSeconds(),
+                        SendFrom = User1.Id,
+                        Type = res.type,
+                        Message = mes,
+                        Image = ImageName,
+                        SendFromEmail = User1.Email,
+                        MessageChannelKey = MessageChannelKey
+                        };
+                        
+                    //Store the messages
+                    await _Context.Medias.AddAsync(media);
+                    await _Context.SaveChangesAsync();  
+                    return new StoreGroupMessageResponse{IsSuccess = true , Error = null,Type=res.type ,FilePath = ImageName }; 
+
+            }
+            catch(Exception e){
+                    return new StoreGroupMessageResponse {IsSuccess=false , Error = e.Message , Type = res.type , FilePath =  string.Empty};
+            }
+        }
+
+
+
         //Get messsage channels of a server
         private async Task<IEnumerable<MessageChannel>> GetMessageChannelAsync(string serverKey){
             ServerChannel server = await _Context.ServerChannels.FindAsync(serverKey);
@@ -264,6 +311,14 @@ namespace ChatApp.services{
         
 
 
+    }
+
+
+    public class StoreGroupMessageResponse{
+        public bool IsSuccess {get;set;}
+        public string Error{get;set;}
+        public string FilePath{get;set;}
+        public string Type{get;set;}
     }
 
 }
