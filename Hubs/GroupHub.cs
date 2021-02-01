@@ -48,6 +48,7 @@ namespace ChatApp{
         //Send Message to the server
         public async Task SendMessage(string ServerKey,string GroupKey , string message){
             string fromUserKey =  Context.User?.FindFirst("UserKey")?.Value;
+            string fromUserName = Context.User?.FindFirst("Sub")?.Value;
             if(!string.IsNullOrWhiteSpace(GroupKey) && !string.IsNullOrWhiteSpace(message)){
                     
                 var b = new MediaUserResponse{
@@ -61,6 +62,7 @@ namespace ChatApp{
                         server_key = ServerKey,
                         text_server_key = GroupKey,
                         from_user_key  = fromUserKey,
+                        from_user_name = fromUserName,
                         message = message
                             });                 
                 }
