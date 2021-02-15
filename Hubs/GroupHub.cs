@@ -63,7 +63,8 @@ namespace ChatApp{
                         text_server_key = GroupKey,
                         from_user_key  = fromUserKey,
                         from_user_name = fromUserName,
-                        message = message
+                        message = message,
+                        Type="Text"
                             });                 
                 }
                else{
